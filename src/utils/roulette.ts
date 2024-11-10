@@ -52,41 +52,5 @@ export const spin = async (account: Account | undefined): Promise<number | undef
   console.log("Sequence Number:", spinSequenceNumber.toString());
   console.log("User's random number:", spinEvent.args.userRandomNumber);
 
-  // return spinSequenceNumber;
-  // Promise to wait for Swap event with correct sequence number
-  console.log("Waiting for Swap event...");
-
-  const swapEventPromise = new Promise<{user: string, swapSequenceNumber: bigint, finalNumber: bigint, tokenOut: string, amountOut: bigint}>((resolve, reject) => {
-    let swapContractEvent = roulette.getEvent("Swap");
-    const timeout = setTimeout(() => {
-      roulette.off(swapContractEvent); // Remove listener if timed out
-      reject(new Error("Swap event not received within timeout"));
-    }, 2 * 60 * 1000); // 2 minutes
-
-    // Listen for the Swap event with the correct filter
-    roulette.on(swapContractEvent, (user, swapSequenceNumber, finalNumber, tokenOut, amountOut) => {
-      if (spinSequenceNumber == swapSequenceNumber) {
-        clearTimeout(timeout); // Clear timeout once the event is received
-        roulette.off(swapContractEvent);  // Clean up all listeners after resolving
-        console.log("Swap event detected with matching sequence number:");
-        console.log("User:", user);
-        console.log("Swap sequence number:", swapSequenceNumber.toString());
-        console.log("Final number:", finalNumber);
-        console.log("Token out address:", tokenOut);
-        console.log("Amount out:", amountOut);
-        resolve({ user, swapSequenceNumber, finalNumber, tokenOut, amountOut });  // Resolve the promise with event args
-      } else {
-        console.log("Received Swap event with non-matching sequence number:", swapSequenceNumber.toString());
-      }
-    });
-  });
-
-  try {
-    const swapEvent = await swapEventPromise;
-    console.log("Swap event received:", swapEvent);
-    return Number(swapEvent.swapSequenceNumber);
-  } catch (error: any) {
-    console.error("Error:", error.message);
-    return undefined;
-  }
+  return spinSequenceNumber;
 };
