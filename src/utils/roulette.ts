@@ -6,6 +6,7 @@ import { ethers6Adapter } from "thirdweb/adapters/ethers6";
 import { Account } from "thirdweb/wallets";
 import { client } from "@/lib/client";
 import { etherlinkTestnet } from "@/lib/chain";
+import { Dispatch, SetStateAction } from "react";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xcbC35A809dd7215eb6D0b4Ad6E5E4701Bb371f29";
 
@@ -14,7 +15,7 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xcbC35A80
  * @param signer Signer connected
  * @returns Returns the sequence number if the transaction succeed, otherwise returns undefined
  */
-export const spin = async (account: Account | undefined): Promise<number | undefined> => {
+export const spin = async (account: Account | undefined, setIsLoading: Dispatch<SetStateAction<boolean>>): Promise<number | undefined> => {
   if (!account) {
     console.log("Error: account undefined.");
     return undefined;
@@ -33,24 +34,32 @@ export const spin = async (account: Account | undefined): Promise<number | undef
   console.log('Fees to pay:', fee);
   console.log('Spinning the roulette...');
 
-  const tx: ContractTransactionResponse = await roulette.spin(randomNumber, { value: (fee + ethers.parseEther('10')).toString() });
-  const receipt = await tx.wait();
-
-  // Access the Spin event and get sequence number
-  const spinEvent = receipt?.logs
-    .map(log => roulette.interface.parseLog(log))
-    .find(log => log?.name === "Spin");
-
-  if (!spinEvent) {
-    console.log("Spin event not found in transaction receipt");
-    return -1;
+  try {
+    setIsLoading(true);
+    const tx: ContractTransactionResponse = await roulette.spin(randomNumber, { value: (fee + ethers.parseEther('10')).toString() });
+    const receipt = await tx.wait();
+  
+    // Access the Spin event and get sequence number
+    const spinEvent = receipt?.logs
+      .map(log => roulette.interface.parseLog(log))
+      .find(log => log?.name === "Spin");
+  
+    if (!spinEvent) {
+      console.log("Spin event not found in transaction receipt");
+      setIsLoading(false);
+      return undefined;
+    }
+  
+    const spinSequenceNumber = spinEvent.args.sequenceNumber;
+    console.log("Spin event detected:");
+    console.log("User:", spinEvent.args.user);
+    console.log("Sequence Number:", spinSequenceNumber.toString());
+    console.log("User's random number:", spinEvent.args.userRandomNumber);
+  
+    return spinSequenceNumber;      
+  } catch (error) {
+    console.log('Error', error);
+    setIsLoading(false);
+    return undefined;
   }
-
-  const spinSequenceNumber = spinEvent.args.sequenceNumber;
-  console.log("Spin event detected:");
-  console.log("User:", spinEvent.args.user);
-  console.log("Sequence Number:", spinSequenceNumber.toString());
-  console.log("User's random number:", spinEvent.args.userRandomNumber);
-
-  return spinSequenceNumber;
 };

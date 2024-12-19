@@ -25,7 +25,7 @@ const ROULETTE_OPTIONS = [
 export default function Home() {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-  // let sequenceNumber = useRef(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [sequenceNumber, setSequenceNumber] = useState(0);
   const acc = useActiveAccount();
 
@@ -93,9 +93,11 @@ export default function Home() {
   }, [acc, sequenceNumber]);
 
   const handleSpinClick = async () => {
-    const result = await spin(acc); // sequence number from the spin
-    if (result == undefined)
+    const result = await spin(acc, setIsLoading); // sequence number from the spin
+    if (result == undefined) {
+      // print error message
       return;
+    }
     setSequenceNumber(result);
   };
   return (
@@ -108,10 +110,11 @@ export default function Home() {
           data={ROULETTE_OPTIONS}
           onStopSpinning={() => {
             setMustSpin(false);
+            setIsLoading(false);
           }}
         />
         <div>
-          {acc ? <Button isDisabled={sequenceNumber != 0} onClick={handleSpinClick}>SPIN 10 XTZ</Button> : <Text>Connect to spin</Text>}
+          {acc ? <Button isDisabled={sequenceNumber != 0} isLoading={isLoading} onClick={handleSpinClick}>SPIN 10 XTZ</Button> : <Text>Connect to spin</Text>}
         </div>
       </main>
       {/* <footer className={styles.footer}>
