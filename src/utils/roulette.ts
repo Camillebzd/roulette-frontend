@@ -8,7 +8,7 @@ import { client } from "@/lib/client";
 import { etherlinkTestnet } from "@/lib/chain";
 import { Dispatch, SetStateAction } from "react";
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xcbC35A809dd7215eb6D0b4Ad6E5E4701Bb371f29";
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 
 /**
  * Spin the roulette and return the sequence number emitted or undefined
@@ -16,17 +16,11 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xcbC35A80
  * @returns Returns the sequence number if the transaction succeed, otherwise returns undefined
  */
 export const spin = async (account: Account | undefined, setIsLoading: Dispatch<SetStateAction<boolean>>): Promise<number | undefined> => {
-  if (!account) {
-    console.log("Error: account undefined.");
+  const roulette = createRoulette(account);
+  if (!roulette) {
+    console.log("Can't spin, roulette contract undefined.");
     return undefined;
   }
-  // chain network hardcoded
-  const signer = ethers6Adapter.signer.toEthers({ client, chain: etherlinkTestnet, account });
-  if (signer == undefined) {
-    console.log("Error: signer undefined.");
-    return undefined;
-  }
-  const roulette = new Contract(CONTRACT_ADDRESS, rouletteABI.abi, signer);
   console.log("Roulette:", await roulette.getAddress());
 
   const randomNumber = ethers.randomBytes(32);
@@ -36,7 +30,8 @@ export const spin = async (account: Account | undefined, setIsLoading: Dispatch<
 
   try {
     setIsLoading(true);
-    const tx: ContractTransactionResponse = await roulette.spin(randomNumber, { value: (fee + ethers.parseEther('10')).toString() });
+    const playingAmount = await roulette.AMOUNT();
+    const tx: ContractTransactionResponse = await roulette.spin(randomNumber, { value: (fee + playingAmount).toString() });
     const receipt = await tx.wait();
   
     // Access the Spin event and get sequence number
@@ -63,3 +58,18 @@ export const spin = async (account: Account | undefined, setIsLoading: Dispatch<
     return undefined;
   }
 };
+
+export const createRoulette = (account: Account | undefined) => {
+  if (!account) {
+    console.log("Error: account undefined.");
+    return undefined;
+  }
+  // chain network hardcoded
+  const signer = ethers6Adapter.signer.toEthers({ client, chain: etherlinkTestnet, account });
+  if (signer == undefined) {
+    console.log("Error: signer undefined.");
+    return undefined;
+  }
+
+  return new Contract(CONTRACT_ADDRESS, rouletteABI, signer)
+}

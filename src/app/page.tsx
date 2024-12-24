@@ -1,25 +1,28 @@
 "use client"
 
-import Image from "next/image";
 import styles from "./page.module.css";
 import { useActiveAccount } from "thirdweb/react";
 import { Wheel } from 'react-custom-roulette';
-import { useEffect, useRef, useState } from "react";
-import { Box, Button, Text } from "@chakra-ui/react";
-import { spin } from "@/utils/roulette";
+import { useEffect, useState } from "react";
+import { Button, Text } from "@chakra-ui/react";
+import { createRoulette, spin } from "@/utils/roulette";
 import { ethers } from "ethers";
+
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
+const RPC_PROVIDER = process.env.NEXT_PUBLIC_RPC_PROVIDER || "https://node.ghostnet.etherlink.com";
 
 const ROULETTE_OPTIONS = [
   { option: 'USDC', style: { backgroundColor: '#2588e6' } },
   { option: 'WETH', style: { backgroundColor: '#6f25e6' } },
   { option: 'USDC', style: { backgroundColor: '#2588e6' } },
-  { option: 'WETH', style: { backgroundColor: '#6f25e6' } },
+  { option: 'LOST', style: { backgroundColor: '#a1a1a1' } },
   { option: 'USDC', style: { backgroundColor: '#2588e6' } },
   { option: 'WETH', style: { backgroundColor: '#6f25e6' } },
   { option: 'USDC', style: { backgroundColor: '#2588e6' } },
   { option: 'WETH', style: { backgroundColor: '#6f25e6' } },
   { option: 'USDC', style: { backgroundColor: '#2588e6' } },
   { option: 'WETH', style: { backgroundColor: '#6f25e6' } },
+  { option: 'X2 XTZ', style: { backgroundColor: '#FFD700' } },
 ];
 
 export default function Home() {
@@ -30,64 +33,85 @@ export default function Home() {
   const acc = useActiveAccount();
 
   useEffect(() => {
-    // Check if there's a valid account or sequenceNumber
     if (!acc || sequenceNumber === 0) return;
 
-    const provider = new ethers.JsonRpcProvider('https://node.ghostnet.etherlink.com'); // Replace with your HTTP provider URL
-    let intervalId: NodeJS.Timeout | null = null; // Declare intervalId outside the interval function to use it in cleanup
+    const provider = new ethers.JsonRpcProvider(RPC_PROVIDER);
+    const roulette = createRoulette(acc);
+
+    if (!roulette) {
+      console.log("Failed to create roulette contract.")
+      return;
+    }
+
+    let intervalId: NodeJS.Timeout | null = null;
 
     const startPolling = () => {
-      // Set up the interval
       intervalId = setInterval(async () => {
         const currentBlock = await provider.getBlockNumber();
-
-        // Set up the filter for the contract address and event topics
+        console.log("currentBlock", currentBlock);
+        // Listen to Swap, Lost, and DoubleWin events
         const filter = {
-          address: "0xcbC35A809dd7215eb6D0b4Ad6E5E4701Bb371f29", // Contract address
+          address: CONTRACT_ADDRESS,
           fromBlock: currentBlock - 900,
-          toBlock: currentBlock,
+          toBlock: 'latest',
           topics: [
-            "0xfac2ee0f215447f9da7602bda1129253ebf6332a264972931c6f9dd71c3c3c81", // Swap
-            "0x000000000000000000000000" + acc?.address.slice(2) // User address
-          ] // Event topics
+            [
+              ethers.id("Swap(address,uint64,uint256,address,uint256)"),
+              ethers.id("Lost(address,uint64,uint256)"),
+              ethers.id("DoubleWin(address,uint64,uint256,uint256)")
+            ],
+            "0x000000000000000000000000" + acc?.address.slice(2)  // User address
+          ]
         };
 
         try {
-          const newLogs = await provider.getLogs(filter);  // Get logs matching the filter
-          console.log(newLogs);
+          const logs = await provider.getLogs(filter);
+          console.log("Logs:", logs);
 
-          for (let log of newLogs) {
-            const data = ethers.AbiCoder.defaultAbiCoder().decode(
-              ['uint64', 'int256', 'address', 'uint256'], // Types of the non-indexed parameters
-              log.data
-            );
+          for (let log of logs) {
+            const parsedLog = roulette.interface.parseLog(log);
+            if (!parsedLog) {
+              console.log("NULL log:", log);
+              continue;
+            }
+            const { sequenceNumber: logSequence, finalNumber } = parsedLog.args;
+            if (logSequence === sequenceNumber) {
+              console.log("Analyse:");
+              console.log("logSequence:", logSequence);
+              console.log("finalNumber:", finalNumber);
+              console.log("log name:", parsedLog.name);
+  
+              setSequenceNumber(0);
+              clearInterval(intervalId!);  // Stop polling once event is found
 
-            console.log("Number(data[1]):", Number(data[1]));
-            console.log("sequenceNumber", sequenceNumber);
+              let prizeIndex = 0;
 
-            if (data[0] === sequenceNumber) {
-              setSequenceNumber(0); // Reset sequence number
-              const number = Number(data[1]) <= 50
-                ? ROULETTE_OPTIONS.findIndex(option => option.option === 'USDC')
-                : ROULETTE_OPTIONS.findIndex(option => option.option === 'WETH');
-              setPrizeNumber(number);
+              if (parsedLog.name === 'Lost') {
+                prizeIndex = ROULETTE_OPTIONS.findIndex(option => option.option === 'LOST');
+              } else if (parsedLog.name === 'DoubleWin') {
+                prizeIndex = ROULETTE_OPTIONS.findIndex(option => option.option === 'X2 XTZ');
+              } else if (parsedLog.name === 'Swap') {
+                prizeIndex = Number(finalNumber) <= 50
+                  ? ROULETTE_OPTIONS.findIndex(option => option.option === 'USDC')
+                  : ROULETTE_OPTIONS.findIndex(option => option.option === 'WETH');
+              }
+
+              setPrizeNumber(prizeIndex);
               setMustSpin(true);
-              break; // Exit the loop if the condition is met
+              break;
             }
           }
         } catch (error) {
-          console.error('Error fetching logs:', error);
+          console.error("Error fetching logs:", error);
         }
-      }, 5000); // Poll every 5 seconds
+      }, 1000);  // Poll every second for responsiveness
     };
 
-    // Start polling
     startPolling();
 
-    // Cleanup function to clear the interval when component unmounts or dependencies change
     return () => {
       if (intervalId !== null) {
-        clearInterval(intervalId); // Clear the previous interval
+        clearInterval(intervalId);
       }
     };
   }, [acc, sequenceNumber]);
@@ -114,7 +138,7 @@ export default function Home() {
           }}
         />
         <div>
-          {acc ? <Button isDisabled={sequenceNumber != 0} isLoading={isLoading} onClick={handleSpinClick}>SPIN 10 XTZ</Button> : <Text>Connect to spin</Text>}
+          {acc ? <Button isDisabled={sequenceNumber != 0} isLoading={isLoading} onClick={handleSpinClick}>SPIN 1 XTZ</Button> : <Text>Connect to spin</Text>}
         </div>
       </main>
       {/* <footer className={styles.footer}>
