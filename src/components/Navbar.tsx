@@ -3,16 +3,9 @@
 import {
   Box,
   Flex,
-  Avatar,
   HStack,
-  Text,
   IconButton,
-  Button,
   Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuDivider,
   useDisclosure,
   useColorModeValue,
   Stack,
@@ -20,10 +13,11 @@ import {
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons'
 import Image from "next/image";
 import styles from "@/app/page.module.css";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { ConnectButton } from "thirdweb/react";
 import { client } from "@/lib/client";
 import { etherlinkTestnet } from "@/lib/chain";
 import { createWallet } from 'thirdweb/wallets';
+import Link from 'next/link';
 
 const wallets = [
   createWallet("io.metamask"),
@@ -32,29 +26,43 @@ const wallets = [
 ];
 
 interface Props {
-  children: React.ReactNode
+  children: React.ReactNode,
+  page: string
 }
 
-const Links = ['Roulette', 'Projects', 'Team']
+const Links = ['CAPY', 'Roullink', 'Coinflink', 'Vault'];
 
 const NavLink = (props: Props) => {
-  const { children } = props
+  const { children, page } = props;
+
+  const handleHref = () => {
+    switch (page) {
+      case 'CAPY':
+        return '/';
+      case 'Roullink':
+      case 'Coinflink':
+      case 'Vault':
+        return `/${page.toLowerCase()}`;
+      default:
+        return '/';
+    }
+  };
 
   return (
-    <Box
-      as="a"
-      px={2}
-      py={1}
-      rounded={'md'}
-      _hover={{
-        textDecoration: 'none',
-        bg: useColorModeValue('gray.200', 'gray.700'),
-      }}
-      href={'#'}>
-      {children}
-    </Box>
-  )
-}
+    <Link href={handleHref()} passHref>
+      <Box
+        px={2}
+        py={1}
+        rounded={'md'}
+        _hover={{
+          textDecoration: 'none',
+          bg: useColorModeValue('gray.200', 'gray.700'),
+        }}>
+        {children}
+      </Box>
+    </Link>
+  );
+};
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -73,8 +81,8 @@ export default function Navbar() {
           <HStack spacing={8} alignItems={'center'}>
             <Image
               className={styles.logo}
-              src="/roulette-logo.png"
-              alt="Next.js logo"
+              src="/Capybara_icon.svg"
+              alt="Capybara logo"
               width={50}
               height={50}
               priority
@@ -82,7 +90,7 @@ export default function Navbar() {
 
             <HStack as={'nav'} spacing={4} display={{ base: 'none', md: 'flex' }}>
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink key={link} page={link}>{link}</NavLink>
               ))}
             </HStack>
           </HStack>
@@ -99,13 +107,6 @@ export default function Navbar() {
                   }}
                 />
               </div>
-
-              <MenuList>
-                <MenuItem>Link 1</MenuItem>
-                <MenuItem>Link 2</MenuItem>
-                <MenuDivider />
-                <MenuItem>Link 3</MenuItem>
-              </MenuList>
             </Menu>
           </Flex>
         </Flex>
@@ -114,7 +115,7 @@ export default function Navbar() {
           <Box pb={4} display={{ md: 'none' }}>
             <Stack as={'nav'} spacing={4}>
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink key={link} page={link}>{link}</NavLink>
               ))}
             </Stack>
           </Box>
