@@ -2,7 +2,11 @@
 
 import styles from "../page.module.css";
 import { useActiveAccount } from "thirdweb/react";
-import { Wheel } from 'react-custom-roulette';
+import dynamic from 'next/dynamic';
+// Dynamically import Wheel without SSR
+const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
+  ssr: false,
+});
 import { useEffect, useState } from "react";
 import { Button, Text, useToast } from "@chakra-ui/react";
 import { createRoulette, spin } from "@/utils/roulette";
@@ -45,7 +49,7 @@ export default function Home() {
   const toast = useToast();
 
   useEffect(() => {
-    if (!acc || sequenceNumber === 0) return;
+    if (!acc || sequenceNumber === 0 || typeof window === 'undefined') return;
 
     const provider = new ethers.JsonRpcProvider(RPC_PROVIDER);
     const roulette = createRoulette(acc);
@@ -80,7 +84,7 @@ export default function Home() {
           const logs = await provider.getLogs(filter);
           console.log("Logs:", logs);
 
-          for (let log of logs) {
+          for (const log of logs) {
             const parsedLog = roulette.interface.parseLog(log);
             if (!parsedLog) {
               console.log("NULL log:", log);
