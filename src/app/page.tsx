@@ -1,14 +1,13 @@
 "use client"
 
 import Image from "next/image";
-import styles from "./page.module.css";
 import { Box, Button, Card, CardBody, CardFooter, CardHeader, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
   const router = useRouter();
 
-  const card = (title: string, text: string, buttonTitle: string, onClick: () => any) => {
+  const card = (title: string, text: string, buttonTitle: string, onClick: () => void) => {
     return (
       <Card display={'flex'} alignItems={'center'}>
         <CardHeader>
@@ -26,7 +25,6 @@ export default function Page() {
 
   return (
     <div>
-      {/* <Image src="/casino_background.jpg" alt="Casino background" /> */}
       <Box position="relative" height="80vh" width="100vw" overflow="hidden">
         <Image
           src="/casino_background.jpg"
@@ -53,9 +51,9 @@ export default function Page() {
       </Box>
       <Flex justifyContent="center" mt={8}>
         <SimpleGrid spacing={4} columns={[1, 2, 3]} width="70%">
-          {card("Roullink", "Roulette game on Etherlink using on chain random system for fair and amayzing rewards!", "Play here", () => {router.push('/roullink')})}
-          {card("Coinflink", "Using on chain random system, flip coins and double your XTZ!", "Play here", () => {router.push('/coinflink')})}
-          {card("Vault", "New vault system in comming...", "Discover soon", () => {router.push('/vault')})}
+          {card("Roullink", "Roulette game on Etherlink using on chain random system for fair and amayzing rewards!", "Play here", () => { router.push('/roullink') })}
+          {card("Coinflink", "Using on chain random system, flip coins and double your XTZ!", "Play here", () => { router.push('/coinflink') })}
+          {card("Vault", "New vault system in comming...", "Discover soon", () => { router.push('/vault') })}
         </SimpleGrid>
       </Flex>
     </div>
