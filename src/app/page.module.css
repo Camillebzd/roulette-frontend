@@ -116,7 +116,7 @@ a.secondary {
 }
 
 /* Footer */
-.footer {
+/* .footer {
   display: flex;
   gap: 24px;
 }
@@ -129,7 +129,7 @@ a.secondary {
 
 .footer img {
   flex-shrink: 0;
-}
+} */
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {

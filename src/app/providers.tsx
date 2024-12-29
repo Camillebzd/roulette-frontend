@@ -3,11 +3,12 @@
 
 import { ChakraProvider } from '@chakra-ui/react'
 import { ThirdwebProvider } from "thirdweb/react";
+import theme from './theme';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThirdwebProvider>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         {children}
       </ChakraProvider>
     </ThirdwebProvider>

@@ -13,7 +13,7 @@ import {
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons'
 import Image from "next/image";
 import styles from "@/app/page.module.css";
-import { ConnectButton } from "thirdweb/react";
+import { ConnectButton, darkTheme } from "thirdweb/react";
 import { client } from "@/lib/client";
 import { etherlinkTestnet } from "@/lib/chain";
 import { createWallet } from 'thirdweb/wallets';
@@ -105,6 +105,12 @@ export default function Navbar() {
                     size: "compact",
                     showThirdwebBranding: false,
                   }}
+                  theme={darkTheme({
+                    colors: {
+                      primaryButtonBg: "hsl(55, 92%, 76%)",
+                      primaryButtonText: "hsl(228, 12%, 8%)",
+                    },
+                  })}
                 />
               </div>
             </Menu>

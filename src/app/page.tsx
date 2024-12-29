@@ -11,7 +11,7 @@ export default function Page() {
     return (
       <Card display={'flex'} alignItems={'center'}>
         <CardHeader>
-          <Heading size='3xl'>{title}</Heading>
+          <Heading size='2xl'>{title}</Heading>
         </CardHeader>
         <CardBody textAlign="center">
           <Text>{text}</Text>
@@ -24,12 +24,12 @@ export default function Page() {
   };
 
   return (
-    <div>
+    <Box>
       <Box position="relative" height="80vh" width="100vw" overflow="hidden">
         <Image
           src="/casino_background.jpg"
           alt="Casino Background"
-          layout="fill"
+          fill
           objectFit="cover"
           quality={100}
         />
@@ -49,13 +49,13 @@ export default function Page() {
           <Button colorScheme="yellow" size="lg" mt={4} rounded='full'>Start Playing</Button>
         </Box>
       </Box>
-      <Flex justifyContent="center" mt={8}>
+      <Flex justifyContent="center" mt={8} mb={8}>
         <SimpleGrid spacing={4} columns={[1, 2, 3]} width="70%">
           {card("Roullink", "Roulette game on Etherlink using on chain random system for fair and amayzing rewards!", "Play here", () => { router.push('/roullink') })}
           {card("Coinflink", "Using on chain random system, flip coins and double your XTZ!", "Play here", () => { router.push('/coinflink') })}
           {card("Vault", "New vault system in comming...", "Discover soon", () => { router.push('/vault') })}
         </SimpleGrid>
       </Flex>
-    </div>
+    </Box>
   );
 }

@@ -8,7 +8,7 @@ const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wh
   ssr: false,
 });
 import { useEffect, useState } from "react";
-import { Button, Text, useToast } from "@chakra-ui/react";
+import { Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
 import { createRoulette, spin } from "@/utils/roulette";
 import { ethers } from "ethers";
 
@@ -96,7 +96,7 @@ export default function Home() {
               console.log("logSequence:", logSequence);
               console.log("finalNumber:", finalNumber);
               console.log("log name:", parsedLog.name);
-  
+
               setSequenceNumber(0);
               clearInterval(intervalId!);  // Stop polling once event is found
 
@@ -195,63 +195,17 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <h1 className={styles.h1}>Roullink</h1>
-        <Wheel
-          mustStartSpinning={mustSpin}
-          prizeNumber={prizeNumber}
-          data={ROULETTE_OPTIONS}
-          onStopSpinning={handleOnStopSpinning}
-        />
-        <div>
-          {acc ? <Button isDisabled={sequenceNumber != 0} isLoading={isLoading} onClick={handleSpinClick}>SPIN 1 XTZ</Button> : <Text>Connect to spin</Text>}
-        </div>
-      </main>
-      {/* <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer> */}
-    </div>
+    <Flex align="center" justify="center" direction='column' mt={8} mb={8} gap={4} className="w-full">
+      <Heading size='2xl'>Roullink</Heading>
+      <Wheel
+        mustStartSpinning={mustSpin}
+        prizeNumber={prizeNumber}
+        data={ROULETTE_OPTIONS}
+        onStopSpinning={handleOnStopSpinning}
+      />
+      <div>
+        {acc ? <Button colorScheme="yellow" isDisabled={sequenceNumber != 0} isLoading={isLoading} onClick={handleSpinClick}>SPIN 1 XTZ</Button> : <Text>Connect to spin</Text>}
+      </div>
+    </Flex>
   );
 }
