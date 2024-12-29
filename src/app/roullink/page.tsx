@@ -1,6 +1,5 @@
 "use client"
 
-import styles from "../page.module.css";
 import { useActiveAccount } from "thirdweb/react";
 import dynamic from 'next/dynamic';
 // Dynamically import Wheel without SSR

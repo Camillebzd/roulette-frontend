@@ -5,7 +5,7 @@ import {
   Box,
   Container,
   Stack,
-  SimpleGrid,
+  // SimpleGrid,
   Text,
   VisuallyHidden,
   chakra,
@@ -15,13 +15,13 @@ import { } from 'react-icons/fa'
 import { FaXTwitter, FaDiscord, FaGithub, FaTelegram } from "react-icons/fa6";
 import { SiRarible } from "react-icons/si";
 
-const ListHeader = ({ children }: { children: ReactNode }) => {
-  return (
-    <Text fontWeight={'500'} fontSize={'lg'} mb={2}>
-      {children}
-    </Text>
-  )
-}
+// const ListHeader = ({ children }: { children: ReactNode }) => {
+//   return (
+//     <Text fontWeight={'500'} fontSize={'lg'} mb={2}>
+//       {children}
+//     </Text>
+//   )
+// }
 
 const SocialButton = ({
   children,
