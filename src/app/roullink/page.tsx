@@ -11,7 +11,7 @@ import { Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
 import { createRoulette, spin } from "@/utils/roulette";
 import { ethers } from "ethers";
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ROULETTE_CONTRACT_ADDRESS || "";
 const RPC_PROVIDER = process.env.NEXT_PUBLIC_RPC_PROVIDER || "https://node.ghostnet.etherlink.com";
 
 const ROULETTE_OPTIONS = [

@@ -8,7 +8,7 @@ import { client } from "@/lib/client";
 import { etherlinkTestnet } from "@/lib/chain";
 import { Dispatch, SetStateAction } from "react";
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ROULETTE_CONTRACT_ADDRESS || "";
 
 /**
  * Spin the roulette and return the sequence number emitted or undefined

@@ -8,6 +8,13 @@
   --font-size-large: 24px;
   --font-size-medium: 16px;
   --font-size-small: 14px;
+
+  /* Coin */
+  --coin-size: 7rem;
+  --side: #ffda00;
+  --lowlight: #111;
+  --side-dark: #0c0812;
+  --coin-face: url(/simple-gold-coin.png);
 }
 
 @media (prefers-color-scheme: dark) {
